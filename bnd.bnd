@@ -1,0 +1,5 @@
+Bundle-Name: liferay-hot-keys
+Bundle-SymbolicName: liferay.hot.keys
+Bundle-Version: 1.0.0
+Liferay-Theme-Contributor-Type: liferay-hot-keys
+Web-ContextPath: /liferay-hot-keys-theme-contributor
