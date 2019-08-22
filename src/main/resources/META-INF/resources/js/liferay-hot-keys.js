@@ -173,13 +173,15 @@ class HotKeys {
 
 		var deleteLink = definition.custom ? ' <a class="btn btn-sm delete-definition text-right" data-index="' + i + '" href="javascript:;"><span class="icon-remove icon"></span></a>' : '';
 
-		return '<div class="definition mb-3">' +
-			keys.map(
-				key => (
-					'<kbd>' + key + '</kbd>'
-				)
-			).join(' + ') + 
-			' : ' + definition.definition +
+		return '<div class="align-items-center definition mb-3 d-flex justify-content-between">' +
+			'<span class="definition-container">' +
+				keys.map(
+					key => (
+						'<kbd>' + key + '</kbd>'
+					)
+				).join(' + ') + 
+				' : ' + definition.definition +
+			'</span>' +
 			deleteLink +
 		'</div>';
 	}
