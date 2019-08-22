@@ -36,10 +36,6 @@ class HotKeys {
 		this.customDefinitions = newCustomDefinitions;
 
 		Liferay.Store(this.CONST_CUSTOM_DEFINITIONS, newCustomDefinitions);
-
-		// this.showAvailableHotKeys();
-
-		// modal.modal('hide');
 	}
 
 	initCustomDefinitions() {
@@ -86,11 +82,25 @@ class HotKeys {
 			search.length
 		);
 
-		this.register(
-			'a k',
-			this.showAddHotKeyModal,
-			'Add a custom hot key.',
-			themeDisplay.isSignedIn()
+		this.registerURL(
+			'l i',
+			'/c/portal/login',
+			'Login',
+			false
+		);
+
+		this.registerURL(
+			'l o',
+			'/c/portal/logout',
+			'Logout',
+			false
+		);
+
+		this.registerURL(
+			'g h',
+			'/',
+			'Navigate to home.',
+			false
 		);
 
 		this.registerClick(
@@ -105,6 +115,13 @@ class HotKeys {
 			'Show available hot keys.',
 			true
 		);
+
+		this.register(
+			'a k',
+			this.showAddHotKeyModal,
+			'Add a custom hot key.',
+			themeDisplay.isSignedIn()
+		);
 	}
 
 	register(keys, action, definition, active, custom) {
@@ -112,14 +129,14 @@ class HotKeys {
 			this.mousetrap.bind(keys, action);
 		}
 
-		var defObj = {
-			active,
-			custom,
-			definition,
-			keys
-		};
-
 		if (!custom) {
+			var defObj = {
+				active,
+				custom,
+				definition,
+				keys
+			};
+
 			this.definitions.push(defObj);
 		}
 	}
@@ -149,14 +166,14 @@ class HotKeys {
 		}
 	}
 
-	registerURL(keys, url, definition, custom) {
+	registerURL(keys, url, definition, custom, active = true) {
 		this.register(
 			keys,
 			() => {
 				window.location.href = url;
 			},
 			definition,
-			true,
+			active,
 			custom
 		);
 	}
@@ -341,9 +358,9 @@ class HotKeys {
 			'click',
 			'.delete-definition',
 			e => {
-				console.log('delete', $(e.target).attr('data-index'));
+				console.log('delete', $(e.currentTarget).attr('data-index'));
 
-				this.deleteCustomDefinition($(e.target).attr('data-index'), modal);
+				this.deleteCustomDefinition($(e.currentTarget).attr('data-index'), modal);
 
 				var modalBody = modal.find('.modal-body').first();
 
@@ -356,17 +373,20 @@ class HotKeys {
 		var oldModal = $('#hotKeyModal');
 
 		if (oldModal.length) {
-			oldModal.replaceWith(modal);
+			oldModal.find('.modal-content').first().replaceWith(modal.find('.modal-content').first());
+
+			oldModal.modal('show');
 		}
 		else {
 			var body = $('body');
 
 			body.append(modal);
+
+			modal.modal();
 		}
 
 		console.log('modal:', modal);
 
-		modal.modal();
 	}
 }
 
