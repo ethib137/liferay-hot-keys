@@ -39,7 +39,6 @@ class HotKeys {
 	}
 
 	initCustomDefinitions() {
-		console.log('initCustomDefinitions');
 		if (themeDisplay.isSignedIn()) {
 			Liferay.Store.get(
 				this.CONST_CUSTOM_DEFINITIONS,
@@ -48,15 +47,11 @@ class HotKeys {
 
 					this.customDefinitions = definitions;
 
-					console.log('initCustomDefinitions:', definitions);
-
 					definitions.forEach(
 						definition => {
 							this.registerCustomDefinition(definition);
 						}
 					);
-
-					console.log('initCustomDefinitions after registering definitions', definitions);
 				}
 			);
 		}
@@ -242,8 +237,6 @@ class HotKeys {
 	}
 
 	setCustomDefinition(definition) {
-		console.log('setCustomDefinition', definition);
-
 		this.registerCustomDefinition(definition);
 
 		var customDefinitions = [...this.customDefinitions];
@@ -256,14 +249,13 @@ class HotKeys {
 	}
 
 	showAddHotKeyModal() {
-		console.log('showAddHotKeyModal');
 		var modal = $(
 			this.renderModal(
 				'Add New Hot Key',
 				'<form>' +
 					'<div class="form-group">' +
 						'<label for="keysInput">Shortcut Keys</label>' +
-						'<input class="form-control" id="keysInput" placeholder="g h" type="text">' +
+						'<input autofocus class="form-control" id="keysInput" placeholder="g h" type="text">' +
 					'</div>' +
 					'<div class="form-group">' +
 						'<label for="typeOfActionInput">Type of Action</label>' +
@@ -288,15 +280,19 @@ class HotKeys {
 			)
 		);
 
-		this.showModal(modal);
+		modal = this.showModal(modal);
+
+		modal.on('shown.bs.modal', function (e) {
+			console.log('modal shown', e);
+
+			modal.find('#keysInput').first().focus();
+		})
 
 		var select = modal.find('#typeOfActionInput')
 
 		select.on(
 			'change',
 			e => {
-				console.log(e);
-
 				var actionContainer = modal.find('#action');
 
 				if (e.currentTarget.value === 'url') {
@@ -314,8 +310,6 @@ class HotKeys {
 			'submit',
 			e => {
 				e.preventDefault();
-
-				console.log(e);
 
 				var target = e.target;
 
@@ -337,8 +331,6 @@ class HotKeys {
 					}
 				);
 
-				console.log('modal:', modal);
-
 				modal.modal('hide');
 			}
 		);
@@ -352,14 +344,12 @@ class HotKeys {
 			)
 		);
 
-		this.showModal(modal);
+		modal = this.showModal(modal);
 
 		modal.on(
 			'click',
 			'.delete-definition',
 			e => {
-				console.log('delete', $(e.currentTarget).attr('data-index'));
-
 				this.deleteCustomDefinition($(e.currentTarget).attr('data-index'), modal);
 
 				var modalBody = modal.find('.modal-body').first();
@@ -376,6 +366,8 @@ class HotKeys {
 			oldModal.find('.modal-content').first().replaceWith(modal.find('.modal-content').first());
 
 			oldModal.modal('show');
+
+			modal = oldModal;
 		}
 		else {
 			var body = $('body');
@@ -385,8 +377,7 @@ class HotKeys {
 			modal.modal();
 		}
 
-		console.log('modal:', modal);
-
+		return modal;
 	}
 }
 
