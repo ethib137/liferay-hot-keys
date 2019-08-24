@@ -15,11 +15,12 @@ class HotKeys {
 		this.registerCustomDefinition = this.registerCustomDefinition.bind(this);
 		this.registerClick = this.registerClick.bind(this);
 		this.registerURL = this.registerURL.bind(this);
-		this.setCustomDefinition = this.setCustomDefinition.bind(this);
 		this.showAddHotKeyModal = this.showAddHotKeyModal.bind(this);
 		this.showAvailableHotKeys = this.showAvailableHotKeys.bind(this);
 
 		this.initCustomDefinitions();
+
+ 		this.init();
 	}
 
 	deleteCustomDefinition(i) {
@@ -43,9 +44,11 @@ class HotKeys {
 			Liferay.Store.get(
 				this.CONST_CUSTOM_DEFINITIONS,
 				definitions => {
+					console.log('customDefinitions', definitions);
+
 					definitions = Array.isArray(definitions) ? definitions : [];
 
-					this.customDefinitions = definitions;
+					// this.customDefinitions = definitions;
 
 					definitions.forEach(
 						definition => {
@@ -59,118 +62,128 @@ class HotKeys {
 
 	init() {
 		this.registerClick(
-			'`',
-			'#_com_liferay_product_navigation_product_menu_web_portlet_ProductMenuPortlet_sidenavToggleId',
-			'Toggle control panel.'
+			{
+				definition: 'Toggle control panel.',
+				keys: '`',
+				selector: '#_com_liferay_product_navigation_product_menu_web_portlet_ProductMenuPortlet_sidenavToggleId'
+			}
 		);
 
 		var search = $('.portlet-search-bar .search-bar-keywords-input').first();
 
 		this.register(
-			'/',
-			function(e) {
-				e.preventDefault();
+			{
+				action: function(e) {
+					e.preventDefault();
 
-				search.focus();
-			},
-			'Focus header search.',
-			search.length
+					search.focus();
+				},
+				active: search.length,
+				definition: 'Focus header search.',
+				keys: '/'
+			}
 		);
 
 		this.registerURL(
-			'l i',
-			'/c/portal/login',
-			'Login',
-			false
+			{
+				url: '/c/portal/login',
+				custom: false,
+				definition: 'Login',
+				keys: 'l i'
+			}
 		);
 
 		this.registerURL(
-			'l o',
-			'/c/portal/logout',
-			'Logout',
-			false
+			{
+				url: '/c/portal/logout',
+				custom: false,
+				definition: 'Logout',
+				keys: 'l o'
+			}
 		);
 
 		this.registerURL(
-			'g h',
-			'/',
-			'Navigate to home.',
-			false
+			{
+				url: '/',
+				custom: false,
+				definition: 'Navigate to home.',
+				keys: 'g h'
+			}
 		);
 
 		this.registerClick(
-			's s',
-			'#_com_liferay_product_navigation_product_menu_web_portlet_ProductMenuPortlet_manageSitesLink',
-			'Show the site menu.'
+			{
+				definition: 'Show the site menu.',
+				keys: 's s',
+				selector: '#_com_liferay_product_navigation_product_menu_web_portlet_ProductMenuPortlet_manageSitesLink'
+			}
 		);
 
 		this.register(
-			'?',
-			this.showAvailableHotKeys,
-			'Show available hot keys.',
-			true
+			{
+				action: this.showAvailableHotKeys,
+				active: true,
+				definition: 'Show available hot keys.',
+				keys: '?'
+			}
 		);
 
 		this.register(
-			'a k',
-			this.showAddHotKeyModal,
-			'Add a custom hot key.',
-			themeDisplay.isSignedIn()
+			{
+				action: this.showAddHotKeyModal,
+				active: themeDisplay.isSignedIn(),
+				definition: 'Add a custom hot key.',
+				keys: 'a k'
+			}
 		);
 	}
 
-	register(keys, action, definition, active, custom) {
-		if (active) {
-			this.mousetrap.bind(keys, action);
+	register(definition) {
+		if (definition.active) {
+			this.mousetrap.bind(definition.keys, definition.action);
 		}
 
-		if (!custom) {
-			var defObj = {
-				active,
-				custom,
-				definition,
-				keys
-			};
-
-			this.definitions.push(defObj);
+		if (definition.custom) {
+			this.customDefinitions.push(definition);
+		}
+		else {
+			this.definitions.push(definition);
 		}
 	}
 
-	registerClick(keys, selector, definition, custom) {
-		var node = $(selector);
+	registerClick(definition) {
+		var node = $(definition.selector);
 
-		this.register(
-			keys,
-			() => {
-				$(selector).trigger('click');
-			},
-			definition,
-			node.length,
-			custom
-		);
+		definition.action = () => {
+			$(definition.selector).trigger('click');
+		};
+
+		definition.active = node.length;
+
+		this.register(definition);
 	}
 
 	registerCustomDefinition(definition) {
 		var type = definition.type;
 
+		definition.custom = true;
+
 		if (type === 'url') {
-			this.registerURL(definition.keys, definition.action, definition.definition, true);
+			this.registerURL(definition);
 		}
 		else if (type === 'click') {
-			this.registerClick(definition.keys, definition.action, definition.definition, true);
+			this.registerClick(definition);
 		}
 	}
 
-	registerURL(keys, url, definition, custom, active = true) {
-		this.register(
-			keys,
-			() => {
-				window.location.href = url;
-			},
-			definition,
-			active,
-			custom
-		);
+	registerURL(definition) {
+		definition.action = () => {
+			window.location.href = definition.url;
+		};
+
+		definition.active = true;
+
+		this.register(definition);
 	}
 
 	renderAction(label, placeholder) {
@@ -234,18 +247,6 @@ class HotKeys {
 				'</div>' +
 			'</div>' +
 		'</div>';
-	}
-
-	setCustomDefinition(definition) {
-		this.registerCustomDefinition(definition);
-
-		var customDefinitions = [...this.customDefinitions];
-
-		customDefinitions.push(definition);
-
-		this.customDefinitions = customDefinitions
-
-		Liferay.Store(this.CONST_CUSTOM_DEFINITIONS, customDefinitions);
 	}
 
 	showAddHotKeyModal() {
@@ -313,23 +314,26 @@ class HotKeys {
 
 				var target = e.target;
 
-				var keys = target[0].value.trim();
-
+				var action = target[2].value;
 				var type = target[1].value;
 
-				var action = target[2].value;
+				var definition = {
+					custom: true,
+					definition: target[3].value,
+					keys: target[0].value.trim(),
+					type
+				};
 
-				var definition = target[3].value;
+				if (type === 'url') {
+					definition.url = action;
+				}
+				else if (type === 'click') {
+					definition.selector = action;
+				}
 
-				this.setCustomDefinition(
-					{
-						action,
-						custom: true,
-						definition,
-						keys,
-						type
-					}
-				);
+				this.registerCustomDefinition(definition);
+
+				Liferay.Store(this.CONST_CUSTOM_DEFINITIONS, [...this.customDefinitions]);
 
 				modal.modal('hide');
 			}
@@ -385,7 +389,5 @@ AUI().ready(
 	'liferay-store',
  	function() {
  		var hotKeys = new HotKeys();
-
- 		hotKeys.init();
  	}
  );
