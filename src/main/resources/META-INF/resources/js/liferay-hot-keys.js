@@ -15,6 +15,7 @@ class HotKeys {
 		this.registerCustomDefinition = this.registerCustomDefinition.bind(this);
 		this.registerClick = this.registerClick.bind(this);
 		this.registerURL = this.registerURL.bind(this);
+		this.renderHotKeysModalBody = this.renderHotKeysModalBody.bind(this);
 		this.showAddHotKeyModal = this.showAddHotKeyModal.bind(this);
 		this.showAvailableHotKeys = this.showAvailableHotKeys.bind(this);
 
@@ -24,13 +25,11 @@ class HotKeys {
 	}
 
 	deleteCustomDefinition(i) {
-		var i = i - this.definitions.length;
-
 		this.mousetrap.unbind(this.customDefinitions[i].keys);
 
 		var newCustomDefinitions = this.customDefinitions.filter(
 			(value, index, arr) => {
-				return index !== i;
+				return parseInt(index) !== parseInt(i);
 			}
 		);
 
@@ -227,6 +226,18 @@ class HotKeys {
 		).join('')
 	}
 
+	renderHotKeysModalBody() {
+		var customHotKeys = '';
+
+		if (themeDisplay.isSignedIn()) {
+			customHotKeys = '<div><h4>Custom Hot Keys:</h4></div>' +
+				this.renderDefinitions(this.customDefinitions) +
+				'<a class="btn btn-secondary add-new-hot-key" href="javascript:;">Add New Hot Key</a>';
+		}
+
+		return this.renderDefinitions(this.definitions) + customHotKeys;
+	}
+
 	renderModal(title, body) {
 		return '<div aria-labelledby="clayDefaultModalLabel" class="fade  liferay-hot-keys-root modal" id="hotKeyModal" role="dialog" style="display: none;" tabindex="-1">' +
 			'<div class="modal-dialog modal-dialog-sm position-relative">' +
@@ -349,19 +360,11 @@ class HotKeys {
 	}
 
 	showAvailableHotKeys() {
-		var customHotKeys = '';
-
-		if (themeDisplay.isSignedIn()) {
-			customHotKeys = '<div><h4>Custom Hot Keys:</h4></div>' +
-				this.renderDefinitions(this.customDefinitions) +
-				'<a class="btn btn-secondary add-new-hot-key" href="javascript:;">Add New Hot Key</a>';
-		}
 
 		var modal = $(
 			this.renderModal(
 				'Liferay Hot Keys',
-				this.renderDefinitions(this.definitions) +
-				customHotKeys
+				this.renderHotKeysModalBody()
 			)
 		);
 
@@ -375,7 +378,7 @@ class HotKeys {
 
 				var modalBody = modal.find('.modal-body').first();
 
-				modalBody.html(this.renderDefinitions([...this.definitions, ...this.customDefinitions]));
+				modalBody.html(this.renderHotKeysModalBody());
 			}
 		);
 
