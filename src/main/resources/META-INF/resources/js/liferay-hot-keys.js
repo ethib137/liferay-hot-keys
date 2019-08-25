@@ -43,11 +43,7 @@ class HotKeys {
 			Liferay.Store.get(
 				this.CONST_CUSTOM_DEFINITIONS,
 				definitions => {
-					console.log('customDefinitions', definitions);
-
 					definitions = Array.isArray(definitions) ? definitions : [];
-
-					// this.customDefinitions = definitions;
 
 					definitions.forEach(
 						definition => {
@@ -156,7 +152,7 @@ class HotKeys {
 		var node = $(definition.selector);
 
 		definition.action = () => {
-			$(definition.selector).trigger('click');
+			$(definition.selector)[0].click();
 		};
 
 		definition.active = node.length;
@@ -240,7 +236,7 @@ class HotKeys {
 
 	renderModal(title, body) {
 		return '<div aria-labelledby="clayDefaultModalLabel" class="fade  liferay-hot-keys-root modal" id="hotKeyModal" role="dialog" style="display: none;" tabindex="-1">' +
-			'<div class="modal-dialog modal-dialog-sm position-relative">' +
+			'<div class="modal-dialog modal-lg position-relative">' +
 				'<div class="modal-content">' + 
 					'<div class="modal-header">' +
 						'<div class="modal-title" id="clayDefaultModalLabel">' +
@@ -303,8 +299,6 @@ class HotKeys {
 		modal = this.showModal(modal);
 
 		modal.on('shown.bs.modal', function (e) {
-			console.log('modal shown', e);
-
 			modal.find('#keysInput').first().focus();
 		})
 
