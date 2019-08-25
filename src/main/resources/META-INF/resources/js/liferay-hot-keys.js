@@ -86,28 +86,30 @@ class HotKeys {
 
 		this.registerURL(
 			{
-				url: '/c/portal/login',
+				active: !themeDisplay.isSignedIn(),
 				custom: false,
 				definition: 'Login',
-				keys: 'l i'
+				keys: 'l i',
+				url: '/c/portal/login'
 			}
 		);
 
 		this.registerURL(
 			{
-				url: '/c/portal/logout',
+				active: themeDisplay.isSignedIn(),
 				custom: false,
 				definition: 'Logout',
-				keys: 'l o'
+				keys: 'l o',
+				url: '/c/portal/logout'
 			}
 		);
 
 		this.registerURL(
 			{
-				url: '/',
 				custom: false,
 				definition: 'Navigate to home.',
-				keys: 'g h'
+				keys: 'g h',
+				url: '/'
 			}
 		);
 
@@ -194,21 +196,27 @@ class HotKeys {
 	}
 
 	renderDefinition(definition, i) {
-		var keys = definition.keys.split(' ');
+		var retVal = '';
 
-		var deleteLink = definition.custom ? ' <a class="btn btn-sm delete-definition text-right" data-index="' + i + '" href="javascript:;"><span class="icon-remove icon"></span></a>' : '';
+		if (definition.active) {
+			var keys = definition.keys.split(' ');
 
-		return '<div class="align-items-center definition mb-3 d-flex justify-content-between">' +
-			'<span class="definition-container">' +
-				keys.map(
-					key => (
-						'<kbd>' + key + '</kbd>'
-					)
-				).join(' + ') + 
-				' : ' + definition.definition +
-			'</span>' +
-			deleteLink +
-		'</div>';
+			var deleteLink = definition.custom ? ' <a class="btn btn-sm delete-definition py-1 text-right" data-index="' + i + '" href="javascript:;"><span class="icon-remove icon"></span></a>' : '';
+
+			retVal = '<div class="align-items-center definition mb-3 d-flex justify-content-between">' +
+				'<span class="definition-container">' +
+					keys.map(
+						key => (
+							'<kbd>' + key + '</kbd>'
+						)
+					).join(' + ') + 
+					' : ' + definition.definition +
+				'</span>' +
+				deleteLink +
+			'</div>';
+		}
+
+		return retVal;
 	}
 
 	renderDefinitions(definitions) {
@@ -220,7 +228,7 @@ class HotKeys {
 	}
 
 	renderModal(title, body) {
-		return '<div aria-labelledby="clayDefaultModalLabel" class="fade modal" id="hotKeyModal" role="dialog" style="display: none;" tabindex="-1">' +
+		return '<div aria-labelledby="clayDefaultModalLabel" class="fade  liferay-hot-keys-root modal" id="hotKeyModal" role="dialog" style="display: none;" tabindex="-1">' +
 			'<div class="modal-dialog modal-dialog-sm position-relative">' +
 				'<div class="modal-content">' + 
 					'<div class="modal-header">' +
@@ -341,10 +349,19 @@ class HotKeys {
 	}
 
 	showAvailableHotKeys() {
+		var customHotKeys = '';
+
+		if (themeDisplay.isSignedIn()) {
+			customHotKeys = '<div><h4>Custom Hot Keys:</h4></div>' +
+				this.renderDefinitions(this.customDefinitions) +
+				'<a class="btn btn-secondary add-new-hot-key" href="javascript:;">Add New Hot Key</a>';
+		}
+
 		var modal = $(
 			this.renderModal(
 				'Liferay Hot Keys',
-				this.renderDefinitions([...this.definitions, ...this.customDefinitions])
+				this.renderDefinitions(this.definitions) +
+				customHotKeys
 			)
 		);
 
@@ -359,6 +376,14 @@ class HotKeys {
 				var modalBody = modal.find('.modal-body').first();
 
 				modalBody.html(this.renderDefinitions([...this.definitions, ...this.customDefinitions]));
+			}
+		);
+
+		modal.on(
+			'click',
+			'.add-new-hot-key',
+			e => {
+				this.showAddHotKeyModal();
 			}
 		);
 	}

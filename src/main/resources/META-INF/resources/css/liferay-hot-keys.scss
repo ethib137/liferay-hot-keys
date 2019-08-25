@@ -1,7 +1,6 @@
 @import "bourbon";
 @import "mixins";
 
-@import "liferay-hot-keys/body";
-@import "liferay-hot-keys/control_menu";
-@import "liferay-hot-keys/product_menu";
-@import "liferay-hot-keys/simulation_panel";
+.liferay-hot-keys-root .modal-content {
+    max-height: 90vh;
+}
