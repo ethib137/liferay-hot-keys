@@ -1,8 +1,10 @@
 @import "bourbon";
 @import "mixins";
 
-.liferay-hot-keys-root .modal-content {
-	margin: 0 5vw;
-	max-height: 90vh;
-	max-width: 90vw;
+.liferay-hot-keys-root {
+	padding: 15px;
+
+	.modal-content {
+		/*max-height: 90vh;*/
+	}
 }

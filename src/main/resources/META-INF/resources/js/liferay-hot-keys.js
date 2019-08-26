@@ -20,6 +20,7 @@ class HotKeys {
 		this.registerCustomDefinition = this.registerCustomDefinition.bind(this);
 		this.registerClick = this.registerClick.bind(this);
 		this.registerURL = this.registerURL.bind(this);
+		this.renderAddHotKeyModal = this.renderAddHotKeyModal.bind(this);
 		this.renderHotKeysModalBody = this.renderHotKeysModalBody.bind(this);
 		this.showAddHotKeyModal = this.showAddHotKeyModal.bind(this);
 		this.showAvailableHotKeys = this.showAvailableHotKeys.bind(this);
@@ -189,140 +190,135 @@ class HotKeys {
 	}
 
 	renderAction(label, placeholder) {
-		return '<div class="form-group" id="action">' +
-			'<label for="actionInput">' + label + '</label>' +
-			'<input class="form-control" id="actionInput" placeholder="' + placeholder + '" type="text">' +
-		'</div>';
+		return `<div class="form-group" id="action">
+			<label for="actionInput">${label}</label>
+			<input class="form-control" id="actionInput" placeholder="${placeholder}" type="text">
+		</div>`;
+	}
+
+	renderAddHotKeyModal() {
+		return this.renderModal(
+			'Add New Hot Key',
+			`<form>
+				<div class="form-group">
+					<label for="keysInput">Shortcut Keys</label>
+					<input autofocus class="form-control" id="keysInput" placeholder="g h" type="text">
+				</div>
+				<div class="form-group">
+					<label for="typeOfActionInput">Type of Action</label>
+					<select class="form-control" id="typeOfActionInput">
+						<option value="url">URL Navigation</option>
+						<option value="click">Simulate Click</option>
+					</select>
+				</div>
+				${this.renderAction('URL', '/group/intranet')}
+				<div class="form-group">
+					<label for="definitionInput">Definition</label>
+					<input class="form-control" id="definitionInput" placeholder="Navigate to /group/intranet." type="text">
+				</div>
+				<div class="form-group">
+					<div class="btn-group">
+						<div class="btn-group-item">
+							<button class="btn btn-primary" type="submit">Save</button>
+						</div>
+					</div>
+				</div>
+			</form>`
+		);
 	}
 
 	renderBadge(content, type = 'success') {
-		return `<span class="badge ${BADGE_TYPE_CLASS_MAP[type]}">` +
-			`<span class="badge-item badge-item-expand">${content}</span>` + 
-		`</span>`;
+		return `<span class="badge ${BADGE_TYPE_CLASS_MAP[type]}">
+			<span class="badge-item badge-item-expand">${content}</span>
+		</span>`;
+	}
+
+	renderCustomHotKeys(customDefinitions) {
+		return `<div class="col-sm">
+			<h4>Custom:</h4>
+			${this.renderDefinitions(customDefinitions)}
+			<a class="btn btn-secondary add-new-hot-key" href="javascript:;">Add New Hot Key</a>
+		</div>`;
 	}
 
 	renderDefinition(definition, i) {
-		var retVal = '';
-
-		var keys = definition.keys.split(' ');
-
-		var badge = definition.active ? this.renderBadge('Active', 'success') : this.renderBadge('Inactive', 'error');
-
-		var deleteLink = definition.custom ? '<td class="text-right"><a class="btn btn-sm delete-definition py-1" data-index="' + i + '" href="javascript:;"><span class="icon-remove icon"></span></a></td>' : '';
-
-		retVal = '<tr>' +
-			'<td class="definition-container">' +
-				keys.map(
+		return `<tr>
+			<td class="definition-container">
+				${definition.keys.split(' ').map(
 					key => (
-						'<kbd>' + key + '</kbd>'
+						`<kbd>${key}</kbd>`
 					)
-				).join(' + ') + 
-				' : ' + definition.definition +
-			'</td>' +
-			`<td class="text-right">${badge}</td>` +
-			deleteLink +
-		'</tr>';
-
-		return retVal;
+				).join(' + ')} : ${definition.definition}
+			</td>
+			<td class="text-right">
+				${definition.active ? this.renderBadge('Active', 'success') : this.renderBadge('Inactive', 'error')}
+			</td>
+			${definition.custom ? this.renderDeleteLink(i) : ''}
+		</tr>`;
 	}
 
 	renderDefinitions(definitions) {
-		return '<div class="table-responsive">' +
-			'<table class="table table-autofit table-list table-nowrap">' +
-				'<tbody>' +
-					definitions.map(
+		return `<div class="table-responsive">
+			<table class="table table-autofit table-list table-nowrap">
+				<tbody>
+					${definitions.map(
 						(definition, i) => (
 							this.renderDefinition(definition, i)
 						)
-					).join('') +
-				'</tbody>' +
-			'</table>' +
-		'</div>'
+					).join('')}
+				</tbody>
+			</table>
+		</div>`;
+	}
+
+	renderDeleteLink(i) {
+		return `<td class="text-right">
+			<a class="btn btn-sm delete-definition py-1" data-index="${i}" href="javascript:;">
+				<span class="icon-remove icon"></span>
+			</a>
+		</td>`;
 	}
 
 	renderHotKeysModalBody() {
-		var customHotKeys = '';
-
-		if (themeDisplay.isSignedIn()) {
-			customHotKeys = '<div class="col-sm">' +
-				'<h4>Custom:</h4>' +
-				this.renderDefinitions(this.customDefinitions) +
-				'<a class="btn btn-secondary add-new-hot-key" href="javascript:;">Add New Hot Key</a>' +
-			'</div>';
-		}
-
-		return '<div class="container">' +
-			'<div class="row">' +
-				'<div class="col-sm">' +
-					'<h4>Default:</h4>' +
-					this.renderDefinitions(this.definitions) + 
-				'</div>' +
-				customHotKeys +
-			'</div>' +
-		'</div>';
+		return `<div class="container">
+			<div class="row">
+				<div class="col-sm">
+					<h4>Default:</h4>
+					${this.renderDefinitions(this.definitions)}
+				</div>
+				${themeDisplay.isSignedIn() ? this.renderCustomHotKeys(this.customDefinitions) : ''}
+			</div>
+		</div>`;
 	}
 
 	renderModal(title, body) {
-		return '<div aria-labelledby="clayDefaultModalLabel" class="fade  liferay-hot-keys-root modal" id="hotKeyModal" role="dialog" style="display: none;" tabindex="-1">' +
-			'<div class="modal-dialog modal-lg position-relative">' +
-				'<div class="modal-content">' + 
-					'<div class="modal-header">' +
-						'<div class="modal-title" id="clayDefaultModalLabel">' +
-							title +
-						'</div>' +
+		return `<div aria-labelledby="clayDefaultModalLabel" class="fade  liferay-hot-keys-root modal" id="hotKeyModal" role="dialog" style="display: none;" tabindex="-1">
+			<div class="modal-dialog modal-lg position-relative">
+				<div class="modal-content">
+					<div class="modal-header">
+						<div class="modal-title" id="clayDefaultModalLabel">${title}</div>
 
-						'<button aria-labelledby="Close" class="close" data-dismiss="modal" role="button" type="button">' +
-							'<span class="icon-remove icon icon-large"></span>' +
-						'</button>' +
-					'</div>' +
-					'<div class="modal-body">' +
-						body +
-					'</div>' +
-					'<div class="modal-footer">' +
-						'<div class="modal-item-last">' +
-							'<div class="btn-group">' +
-								'<div class="btn-group-item">' +
-									'<button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>' +
-								'</div>'
-							'</div>' +
-						'</div>' +
-					'</div>' +
-				'</div>' +
-			'</div>' +
-		'</div>';
+						<button aria-labelledby="Close" class="close" data-dismiss="modal" role="button" type="button">
+							<span class="icon-remove icon icon-large"></span>
+						</button>
+					</div>
+					<div class="modal-body">${body}</div>
+					<div class="modal-footer">
+						<div class="modal-item-last">
+							<div class="btn-group">
+								<div class="btn-group-item">
+									<button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>`;
 	}
 
 	showAddHotKeyModal() {
-		var modal = $(
-			this.renderModal(
-				'Add New Hot Key',
-				'<form>' +
-					'<div class="form-group">' +
-						'<label for="keysInput">Shortcut Keys</label>' +
-						'<input autofocus class="form-control" id="keysInput" placeholder="g h" type="text">' +
-					'</div>' +
-					'<div class="form-group">' +
-						'<label for="typeOfActionInput">Type of Action</label>' +
-						'<select class="form-control" id="typeOfActionInput">' +
-							'<option value="url">URL Navigation</option>' +
-							'<option value="click">Simulate Click</option>' +
-						'</select>' +
-					'</div>' +
-					this.renderAction('URL', '/group/intranet') +
-					'<div class="form-group">' +
-						'<label for="definitionInput">Definition</label>' +
-						'<input class="form-control" id="definitionInput" placeholder="Navigate to /group/intranet." type="text">' +
-					'</div>' +
-					'<div class="form-group">' +
-						'<div class="btn-group">' +
-							'<div class="btn-group-item">' +
-								'<button class="btn btn-primary" type="submit">Save</button>' +
-							'</div>' +
-						'</div>' +
-					'</div>' +
-				'</form>'
-			)
-		);
+		var modal = $(this.renderAddHotKeyModal());
 
 		modal = this.showModal(modal);
 
@@ -382,7 +378,6 @@ class HotKeys {
 	}
 
 	showAvailableHotKeys() {
-
 		var modal = $(
 			this.renderModal(
 				'Liferay Hot Keys',
