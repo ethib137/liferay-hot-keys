@@ -1,3 +1,9 @@
+const ACTION_TYPE_MAP = {
+	click: 'click',
+	focus: 'focus',
+	url: 'url'
+};
+
 const BADGE_TYPE_CLASS_MAP = {
 	error: 'badge-danger',
 	success: 'badge-success'
@@ -221,12 +227,27 @@ class HotKeys {
 
 		definition.custom = true;
 
-		if (type === 'url') {
+		if (type === ACTION_TYPE_MAP.url) {
 			this.registerURL(definition);
 		}
-		else if (type === 'click') {
+		else if (type === ACTION_TYPE_MAP.click) {
 			this.registerClick(definition);
 		}
+		else if (type === ACTION_TYPE_MAP.focus) {
+			this.registerFocus(definition);
+		}
+	}
+
+	registerFocus(definition) {
+		var node = $(definition.selector);
+
+		definition.action = () => {
+			$(definition.selector)[0].focus();
+		};
+
+		definition.active = node.length;
+
+		this.register(definition);
 	}
 
 	registerURL(definition) {
@@ -273,6 +294,7 @@ class HotKeys {
 					<select class="form-control" id="typeOfActionInput">
 						<option value="url">URL Navigation</option>
 						<option value="click">Simulate Click</option>
+						<option value="focus">Focus Element</option>
 					</select>
 				</div>
 				${this.renderAction('URL', '/group/intranet')}
@@ -401,7 +423,7 @@ class HotKeys {
 			e => {
 				var actionContainer = modal.find('#action');
 
-				if (e.currentTarget.value === 'url') {
+				if (e.currentTarget.value === ACTION_TYPE_MAP.url) {
 					actionContainer.replaceWith($(this.renderAction('URL', '/group/intranet')));
 				}
 				else {
@@ -409,7 +431,7 @@ class HotKeys {
 				}
 			}
 		);
-// Maybe add [0]
+
 		this.addEvent(
 			modal.find('form'),
 			'submit',
@@ -428,10 +450,10 @@ class HotKeys {
 					type
 				};
 
-				if (type === 'url') {
+				if (type === ACTION_TYPE_MAP.url) {
 					definition.url = action;
 				}
-				else if (type === 'click') {
+				else if (type === ACTION_TYPE_MAP.click || type === ACTION_TYPE_MAP.focus) {
 					definition.selector = action;
 				}
 
