@@ -3,6 +3,12 @@ const BADGE_TYPE_CLASS_MAP = {
 	success: 'badge-success'
 };
 
+const MODAL_SIZE_CLASS_MAP = {
+	large: 'modal-lg',
+	medium: 'modal-md',
+	small: 'modal-sm'
+};
+
 class HotKeys {
 	constructor() {
 		this.CONST_CUSTOM_DEFINITIONS = '_LIFERAY_HOTKEY_CUSTOM_DEFINITIONS_';
@@ -122,6 +128,30 @@ class HotKeys {
 			}
 		);
 
+		this.registerClick(
+			{
+				definition: 'Toggle the user menu.',
+				keys: 'u m',
+				selector: '.personal-menu-dropdown .btn'
+			}
+		);
+
+		this.registerClick(
+			{
+				definition: 'Edit the current page.',
+				keys: 'e p',
+				selector: '.user-control-group .control-menu-nav-item:first a'
+			}
+		);
+
+		this.registerClick(
+			{
+				definition: 'Configure the current page.',
+				keys: 'c p',
+				selector: '.user-control-group .control-menu-nav-item:nth-child(2) a'
+			}
+		);
+
 		this.register(
 			{
 				action: this.showAvailableHotKeys,
@@ -135,7 +165,7 @@ class HotKeys {
 			{
 				action: this.showAddHotKeyModal,
 				active: themeDisplay.isSignedIn(),
-				definition: 'Add a custom hot key.',
+				definition: 'Add a custom hot key. (Must be logged in.)',
 				keys: 'a k'
 			}
 		);
@@ -223,7 +253,8 @@ class HotKeys {
 						</div>
 					</div>
 				</div>
-			</form>`
+			</form>`,
+			'medium'
 		);
 	}
 
@@ -280,7 +311,7 @@ class HotKeys {
 	}
 
 	renderHotKeysModalBody() {
-		return `<div class="container">
+		return `<div class="container-fluid">
 			<div class="row">
 				<div class="col-sm">
 					<h4>Default:</h4>
@@ -291,9 +322,9 @@ class HotKeys {
 		</div>`;
 	}
 
-	renderModal(title, body) {
+	renderModal(title, body, sizeClass) {
 		return `<div aria-labelledby="clayDefaultModalLabel" class="fade  liferay-hot-keys-root modal" id="hotKeyModal" role="dialog" style="display: none;" tabindex="-1">
-			<div class="modal-dialog modal-lg position-relative">
+			<div class="modal-dialog ${sizeClass ? MODAL_SIZE_CLASS_MAP[sizeClass] : ''} position-relative">
 				<div class="modal-content">
 					<div class="modal-header">
 						<div class="modal-title" id="clayDefaultModalLabel">${title}</div>
@@ -412,7 +443,7 @@ class HotKeys {
 		var oldModal = $('#hotKeyModal');
 
 		if (oldModal.length) {
-			oldModal.find('.modal-content').first().replaceWith(modal.find('.modal-content').first());
+			oldModal.find('.modal-dialog').first().replaceWith(modal.find('.modal-dialog').first());
 
 			oldModal.modal('show');
 
