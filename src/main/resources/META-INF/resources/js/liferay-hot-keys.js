@@ -1,3 +1,21 @@
+const ACTION_LABEL_MAP = {
+	click: 'Selector',
+	focus: 'Selector',
+	url: 'Url'
+};
+
+const ACTION_OBJECT_KEY_MAP = {
+	click: 'selector',
+	focus: 'selector',
+	url: 'url'
+};
+
+const ACTION_PLACEHOLDER_MAP = {
+	click: '#myButton',
+	focus: '#myButton',
+	url: '/group/intranet'
+};
+
 const ACTION_TYPE_MAP = {
 	click: 'click',
 	focus: 'focus',
@@ -274,33 +292,60 @@ class HotKeys {
 		this.eventObjects = [];
 	}
 
-	renderAction(label, placeholder) {
+	renderAction(type, value = '') {
 		return `<div class="form-group" id="action">
-			<label for="actionInput">${label}</label>
-			<input class="form-control" id="actionInput" placeholder="${placeholder}" type="text">
+			<label for="actionInput">${ACTION_LABEL_MAP[type]}</label>
+			<input class="form-control" id="actionInput" placeholder="${ACTION_PLACEHOLDER_MAP[type]}" type="text" value="${value}">
 		</div>`;
 	}
 
-	renderAddHotKeyModal() {
+	renderActionLinks(i) {
+		return `<td class="text-right">
+			<a class="btn btn-sm edit-definition py-1" data-index="${i}" href="javascript:;">
+				<span class="icon-edit icon"></span>
+			</a>
+			<a class="btn btn-sm delete-definition py-1" data-index="${i}" href="javascript:;">
+				<span class="icon-remove icon"></span>
+			</a>
+		</td>`;
+	}
+
+	renderAddHotKeyModal(i = -1) {
+		var action = '';
+		var definition = '';
+		var keys = '';
+		var type = 'url';
+
+		if (i >= 0) {
+			var defObj = this.customDefinitions[i];
+
+			definition = defObj.definition;
+			keys = defObj.keys;
+			type = defObj.type;
+
+			action = defObj[ACTION_OBJECT_KEY_MAP[type]];
+		}
+
 		return this.renderModal(
 			'Add New Hot Key',
 			`<form>
+				<input name="index" type="hidden" value="${i}">
 				<div class="form-group">
 					<label for="keysInput">Shortcut Keys</label>
-					<input autofocus class="form-control" id="keysInput" placeholder="g h" type="text">
+					<input autofocus class="form-control" id="keysInput" placeholder="g h" type="text" value="${keys}">
 				</div>
 				<div class="form-group">
 					<label for="typeOfActionInput">Type of Action</label>
 					<select class="form-control" id="typeOfActionInput">
-						<option value="url">URL Navigation</option>
-						<option value="click">Simulate Click</option>
-						<option value="focus">Focus Element</option>
+						<option ${type === 'url' ? 'selected' : ''} value="url">URL Navigation</option>
+						<option ${type === 'click' ? 'selected' : ''} value="click">Simulate Click</option>
+						<option ${type === 'focus' ? 'selected' : ''} value="focus">Focus Element</option>
 					</select>
 				</div>
-				${this.renderAction('URL', '/group/intranet')}
+				${this.renderAction(type, action)}
 				<div class="form-group">
 					<label for="definitionInput">Definition</label>
-					<input class="form-control" id="definitionInput" placeholder="Navigate to /group/intranet." type="text">
+					<input class="form-control" id="definitionInput" placeholder="Navigate to /group/intranet." type="text" value="${definition}">
 				</div>
 				<div class="form-group">
 					<div class="btn-group">
@@ -340,7 +385,7 @@ class HotKeys {
 			<td class="text-right">
 				${definition.active ? this.renderBadge('Active', 'success') : this.renderBadge('Inactive', 'error')}
 			</td>
-			${definition.custom ? this.renderDeleteLink(i) : ''}
+			${definition.custom ? this.renderActionLinks(i) : ''}
 		</tr>`;
 	}
 
@@ -356,14 +401,6 @@ class HotKeys {
 				</tbody>
 			</table>
 		</div>`;
-	}
-
-	renderDeleteLink(i) {
-		return `<td class="text-right">
-			<a class="btn btn-sm delete-definition py-1" data-index="${i}" href="javascript:;">
-				<span class="icon-remove icon"></span>
-			</a>
-		</td>`;
 	}
 
 	renderHotKeysModalBody() {
@@ -404,8 +441,8 @@ class HotKeys {
 		</div>`;
 	}
 
-	showAddHotKeyModal() {
-		var modal = $(this.renderAddHotKeyModal());
+	showAddHotKeyModal(i) {
+		var modal = $(this.renderAddHotKeyModal(i));
 
 		modal = this.showModal(modal);
 
@@ -423,12 +460,7 @@ class HotKeys {
 			e => {
 				var actionContainer = modal.find('#action');
 
-				if (e.currentTarget.value === ACTION_TYPE_MAP.url) {
-					actionContainer.replaceWith($(this.renderAction('URL', '/group/intranet')));
-				}
-				else {
-					actionContainer.replaceWith($(this.renderAction('Selector', '#myButton')));
-				}
+				actionContainer.replaceWith($(this.renderAction(e.currentTarget.value)));
 			}
 		);
 
@@ -440,13 +472,18 @@ class HotKeys {
 
 				var target = e.target;
 
-				var action = target[2].value;
-				var type = target[1].value;
+				var action = target[3].value;
+				var index = target[0].value;
+				var type = target[2].value;
+
+				if (index >= 0) {
+					this.deleteCustomDefinition(index);
+				}
 
 				var definition = {
 					custom: true,
-					definition: target[3].value,
-					keys: target[0].value.trim(),
+					definition: target[4].value,
+					keys: target[1].value.trim(),
 					type
 				};
 
@@ -488,6 +525,15 @@ class HotKeys {
 				var modalBody = modal.find('.modal-body').first();
 
 				modalBody.html(this.renderHotKeysModalBody());
+			}
+		);
+
+		this.addEvent(
+			modal,
+			'click',
+			'.edit-definition',
+			e => {
+				this.showAddHotKeyModal($(e.currentTarget).attr('data-index'));
 			}
 		);
 
