@@ -301,10 +301,10 @@ class HotKeys {
 
 	renderActionLinks(i) {
 		return `<td class="text-right">
-			<a class="btn btn-sm edit-definition py-1" data-index="${i}" href="javascript:;">
+			<a class="btn btn-sm edit-definition lfr-portal-tooltip py-1" data-index="${i}" data-title="Edit" href="javascript:;">
 				<span class="icon-edit icon"></span>
 			</a>
-			<a class="btn btn-sm delete-definition py-1" data-index="${i}" href="javascript:;">
+			<a class="btn btn-sm delete-definition lfr-portal-tooltip py-1" data-index="${i}" data-title="Delete" href="javascript:;">
 				<span class="icon-remove icon"></span>
 			</a>
 		</td>`;
