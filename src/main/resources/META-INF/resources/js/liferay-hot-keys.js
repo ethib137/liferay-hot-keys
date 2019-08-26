@@ -1,3 +1,8 @@
+const BADGE_TYPE_CLASS_MAP = {
+	error: 'badge-danger',
+	success: 'badge-success'
+};
+
 class HotKeys {
 	constructor() {
 		this.CONST_CUSTOM_DEFINITIONS = '_LIFERAY_HOTKEY_CUSTOM_DEFINITIONS_';
@@ -190,48 +195,71 @@ class HotKeys {
 		'</div>';
 	}
 
+	renderBadge(content, type = 'success') {
+		return `<span class="badge ${BADGE_TYPE_CLASS_MAP[type]}">` +
+			`<span class="badge-item badge-item-expand">${content}</span>` + 
+		`</span>`;
+	}
+
 	renderDefinition(definition, i) {
 		var retVal = '';
 
-		if (definition.active) {
-			var keys = definition.keys.split(' ');
+		var keys = definition.keys.split(' ');
 
-			var deleteLink = definition.custom ? ' <a class="btn btn-sm delete-definition py-1 text-right" data-index="' + i + '" href="javascript:;"><span class="icon-remove icon"></span></a>' : '';
+		var badge = definition.active ? this.renderBadge('Active', 'success') : this.renderBadge('Inactive', 'error');
 
-			retVal = '<div class="align-items-center definition mb-3 d-flex justify-content-between">' +
-				'<span class="definition-container">' +
-					keys.map(
-						key => (
-							'<kbd>' + key + '</kbd>'
-						)
-					).join(' + ') + 
-					' : ' + definition.definition +
-				'</span>' +
-				deleteLink +
-			'</div>';
-		}
+		var deleteLink = definition.custom ? '<td class="text-right"><a class="btn btn-sm delete-definition py-1" data-index="' + i + '" href="javascript:;"><span class="icon-remove icon"></span></a></td>' : '';
+
+		retVal = '<tr>' +
+			'<td class="definition-container">' +
+				keys.map(
+					key => (
+						'<kbd>' + key + '</kbd>'
+					)
+				).join(' + ') + 
+				' : ' + definition.definition +
+			'</td>' +
+			`<td class="text-right">${badge}</td>` +
+			deleteLink +
+		'</tr>';
 
 		return retVal;
 	}
 
 	renderDefinitions(definitions) {
-		return definitions.map(
-			(definition, i) => (
-				this.renderDefinition(definition, i)
-			)
-		).join('')
+		return '<div class="table-responsive">' +
+			'<table class="table table-autofit table-list table-nowrap">' +
+				'<tbody>' +
+					definitions.map(
+						(definition, i) => (
+							this.renderDefinition(definition, i)
+						)
+					).join('') +
+				'</tbody>' +
+			'</table>' +
+		'</div>'
 	}
 
 	renderHotKeysModalBody() {
 		var customHotKeys = '';
 
 		if (themeDisplay.isSignedIn()) {
-			customHotKeys = '<div><h4>Custom Hot Keys:</h4></div>' +
+			customHotKeys = '<div class="col-sm">' +
+				'<h4>Custom:</h4>' +
 				this.renderDefinitions(this.customDefinitions) +
-				'<a class="btn btn-secondary add-new-hot-key" href="javascript:;">Add New Hot Key</a>';
+				'<a class="btn btn-secondary add-new-hot-key" href="javascript:;">Add New Hot Key</a>' +
+			'</div>';
 		}
 
-		return this.renderDefinitions(this.definitions) + customHotKeys;
+		return '<div class="container">' +
+			'<div class="row">' +
+				'<div class="col-sm">' +
+					'<h4>Default:</h4>' +
+					this.renderDefinitions(this.definitions) + 
+				'</div>' +
+				customHotKeys +
+			'</div>' +
+		'</div>';
 	}
 
 	renderModal(title, body) {

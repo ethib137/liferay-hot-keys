@@ -2,5 +2,7 @@
 @import "mixins";
 
 .liferay-hot-keys-root .modal-content {
-    max-height: 90vh;
+	margin: 0 5vw;
+	max-height: 90vh;
+	max-width: 90vw;
 }
