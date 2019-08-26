@@ -17,6 +17,8 @@ class HotKeys {
 
 		this.definitions = [];
 
+		this.eventObjects = [];
+
 		this.mousetrap = Mousetrap;
 
 		this.deleteCustomDefinition = this.deleteCustomDefinition.bind(this);
@@ -26,6 +28,7 @@ class HotKeys {
 		this.registerCustomDefinition = this.registerCustomDefinition.bind(this);
 		this.registerClick = this.registerClick.bind(this);
 		this.registerURL = this.registerURL.bind(this);
+		this.removeEvents = this.removeEvents.bind(this);
 		this.renderAddHotKeyModal = this.renderAddHotKeyModal.bind(this);
 		this.renderHotKeysModalBody = this.renderHotKeysModalBody.bind(this);
 		this.showAddHotKeyModal = this.showAddHotKeyModal.bind(this);
@@ -34,6 +37,23 @@ class HotKeys {
 		this.initCustomDefinitions();
 
  		this.init();
+	}
+
+	addEvent(node, event, selector, handler) {
+		this.eventObjects.push(
+			{
+				event,
+				handler,
+				node,
+				selector
+			}
+		);
+
+		node.on(
+			event,
+			selector,
+			handler
+		);
 	}
 
 	deleteCustomDefinition(i) {
@@ -219,6 +239,20 @@ class HotKeys {
 		this.register(definition);
 	}
 
+	removeEvents() {
+		this.eventObjects.forEach(
+			eventObject => {
+				eventObject.node.off(
+					eventObject.event,
+					eventObject.selector,
+					eventObject.handler
+				);
+			}
+		);
+
+		this.eventObjects = [];
+	}
+
 	renderAction(label, placeholder) {
 		return `<div class="form-group" id="action">
 			<label for="actionInput">${label}</label>
@@ -353,13 +387,16 @@ class HotKeys {
 
 		modal = this.showModal(modal);
 
-		modal.on('shown.bs.modal', function (e) {
-			modal.find('#keysInput').first().focus();
-		})
+		this.addEvent(
+			modal,
+			'shown.bs.modal',
+			function (e) {
+				modal.find('#keysInput').first().focus();
+			}
+		);
 
-		var select = modal.find('#typeOfActionInput')
-
-		select.on(
+		this.addEvent(
+			modal.find('#typeOfActionInput'),
 			'change',
 			e => {
 				var actionContainer = modal.find('#action');
@@ -372,10 +409,9 @@ class HotKeys {
 				}
 			}
 		);
-
-		var form = modal.find('form');
-
-		form.on(
+// Maybe add [0]
+		this.addEvent(
+			modal.find('form'),
 			'submit',
 			e => {
 				e.preventDefault();
@@ -404,6 +440,8 @@ class HotKeys {
 				Liferay.Store(this.CONST_CUSTOM_DEFINITIONS, [...this.customDefinitions]);
 
 				modal.modal('hide');
+
+				this.removeEvents();
 			}
 		);
 	}
@@ -418,11 +456,12 @@ class HotKeys {
 
 		modal = this.showModal(modal);
 
-		modal.on(
+		this.addEvent(
+			modal,
 			'click',
 			'.delete-definition',
 			e => {
-				this.deleteCustomDefinition($(e.currentTarget).attr('data-index'), modal);
+				this.deleteCustomDefinition($(e.currentTarget).attr('data-index'));
 
 				var modalBody = modal.find('.modal-body').first();
 
@@ -430,7 +469,8 @@ class HotKeys {
 			}
 		);
 
-		modal.on(
+		this.addEvent(
+			modal,
 			'click',
 			'.add-new-hot-key',
 			e => {
@@ -443,6 +483,8 @@ class HotKeys {
 		var oldModal = $('#hotKeyModal');
 
 		if (oldModal.length) {
+			this.removeEvents();
+
 			oldModal.find('.modal-dialog').first().replaceWith(modal.find('.modal-dialog').first());
 
 			oldModal.modal('show');
