@@ -11,13 +11,13 @@ Press 'a' + 'k' to create a new hotkey of your own. This is only available when 
 
 ![AddHotKey](/images/AddHotKey.png)
 
-Add custom hotkeys for url based navigation or for clicking on elements using an elements selector.
+Add custom hotkeys for url based navigation, for clicking on elements, or focusing elements using an elements selector.
 
-## How to build and deploy to liferay
+## How to Build and Deploy to Liferay
 
 ### Build it
 ` $ ./gradlew build `
-The jar file will be in `build/liferay.hot.keys-1.0.0.jar`
+The jar file will be in `build/libs/liferay.hot.keys-1.0.0.jar`.
 
 ### Deploy to Liferay
 ` $ ./gradlew deploy -Pauto.deploy.dir="/path/to/liferay/deploy"`
