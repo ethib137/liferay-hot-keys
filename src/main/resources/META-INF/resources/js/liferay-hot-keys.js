@@ -135,6 +135,32 @@ class HotKeys {
 			}
 		);
 
+		this.register(
+			{
+				action: () => {
+					var url = window.location.pathname.split('/').splice(0,3);
+
+					var switchUrlObj = {
+						group: 'web',
+						web: 'group'
+					};
+
+					fetch(url.join('/')).then(
+						function(response) {
+							if (response.status == 404) {
+								url[1] = switchUrlObj[url[1]];
+							}
+
+							window.location.href = url.join('/');
+						}
+					);
+				},
+				active: true,
+				definition: 'Go to current site home',
+				keys: 'g s'
+			}
+		);
+
 		this.registerURL(
 			{
 				active: !themeDisplay.isSignedIn(),
