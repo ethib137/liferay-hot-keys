@@ -1,39 +1,39 @@
-const ACTION_LABEL_MAP = {
-	click: 'Selector',
-	focus: 'Selector',
-	url: 'Url'
-};
-
-const ACTION_OBJECT_KEY_MAP = {
-	click: 'selector',
-	focus: 'selector',
-	url: 'url'
-};
-
-const ACTION_PLACEHOLDER_MAP = {
-	click: '#myButton',
-	focus: '#myButton',
-	url: '/group/intranet'
-};
-
-const ACTION_TYPE_MAP = {
-	click: 'click',
-	focus: 'focus',
-	url: 'url'
-};
-
-const BADGE_TYPE_CLASS_MAP = {
-	error: 'badge-danger',
-	success: 'badge-success'
-};
-
-const MODAL_SIZE_CLASS_MAP = {
-	large: 'modal-lg',
-	medium: 'modal-md',
-	small: 'modal-sm'
-};
-
 class HotKeys {
+	ACTION_LABEL_MAP = {
+		click: 'Selector',
+		focus: 'Selector',
+		url: 'Url'
+	};
+
+	ACTION_OBJECT_KEY_MAP = {
+		click: 'selector',
+		focus: 'selector',
+		url: 'url'
+	};
+
+	ACTION_PLACEHOLDER_MAP = {
+		click: '#myButton',
+		focus: '#myButton',
+		url: '/group/intranet'
+	};
+
+	BADGE_TYPE_CLASS_MAP = {
+		error: 'badge-danger',
+		success: 'badge-success'
+	};
+
+	MODAL_SIZE_CLASS_MAP = {
+		large: 'modal-lg',
+		medium: 'modal-md',
+		small: 'modal-sm'
+	};
+
+	ACTION_TYPE_MAP = {
+		click: 'click',
+		focus: 'focus',
+		url: 'url'
+	};
+
 	constructor() {
 		this.CONST_CUSTOM_DEFINITIONS = '_LIFERAY_HOTKEY_CUSTOM_DEFINITIONS_';
 
@@ -60,18 +60,16 @@ class HotKeys {
 
 		this.initCustomDefinitions();
 
- 		this.init();
+		this.init();
 	}
 
 	addEvent(node, event, selector, handler) {
-		this.eventObjects.push(
-			{
-				event,
-				handler,
-				node,
-				selector
-			}
-		);
+		this.eventObjects.push({
+			event,
+			handler,
+			node,
+			selector
+		});
 
 		node.on(
 			event,
@@ -112,133 +110,109 @@ class HotKeys {
 	}
 
 	init() {
-		this.registerClick(
-			{
-				definition: 'Toggle control panel.',
-				keys: '`',
-				selector: '#_com_liferay_product_navigation_product_menu_web_portlet_ProductMenuPortlet_sidenavToggleId'
-			}
-		);
+		this.registerClick({
+			definition: 'Toggle control panel.',
+			keys: '`',
+			selector: '#_com_liferay_product_navigation_product_menu_web_portlet_ProductMenuPortlet_sidenavToggleId'
+		});
 
 		var search = $('.portlet-search-bar .search-bar-keywords-input').first();
 
-		this.register(
-			{
-				action: function(e) {
-					e.preventDefault();
+		this.register({
+			action: function(e) {
+				e.preventDefault();
 
-					search.focus();
-				},
-				active: search.length,
-				definition: 'Focus header search.',
-				keys: '/'
-			}
-		);
+				search.focus();
+			},
+			active: search.length,
+			definition: 'Focus header search.',
+			keys: '/'
+		});
 
-		this.register(
-			{
-				action: () => {
-					var url = window.location.pathname.split('/').splice(0,3);
+		this.register({
+			action: () => {
+				var url = window.location.pathname.split('/').splice(0, 3);
 
-					var switchUrlObj = {
-						group: 'web',
-						web: 'group'
-					};
+				var switchUrlObj = {
+					group: 'web',
+					web: 'group'
+				};
 
-					fetch(url.join('/')).then(
-						function(response) {
-							if (response.status == 404) {
-								url[1] = switchUrlObj[url[1]];
-							}
-
-							window.location.href = url.join('/');
+				fetch(url.join('/')).then(
+					function(response) {
+						if (response.status == 404) {
+							url[1] = switchUrlObj[url[1]];
 						}
-					);
-				},
-				active: true,
-				definition: 'Go to current site home',
-				keys: 'g s'
-			}
-		);
 
-		this.registerURL(
-			{
-				active: !themeDisplay.isSignedIn(),
-				custom: false,
-				definition: 'Login',
-				keys: 'l i',
-				url: '/c/portal/login'
-			}
-		);
+						window.location.href = url.join('/');
+					}
+				);
+			},
+			active: true,
+			definition: 'Go to current site home',
+			keys: 'g s'
+		});
 
-		this.registerURL(
-			{
-				active: themeDisplay.isSignedIn(),
-				custom: false,
-				definition: 'Logout',
-				keys: 'l o',
-				url: '/c/portal/logout'
-			}
-		);
+		this.registerURL({
+			active: !themeDisplay.isSignedIn(),
+			custom: false,
+			definition: 'Login',
+			keys: 'l i',
+			url: '/c/portal/login'
+		});
 
-		this.registerURL(
-			{
-				custom: false,
-				definition: 'Navigate to home.',
-				keys: 'g h',
-				url: '/'
-			}
-		);
+		this.registerURL({
+			active: themeDisplay.isSignedIn(),
+			custom: false,
+			definition: 'Logout',
+			keys: 'l o',
+			url: '/c/portal/logout'
+		});
 
-		this.registerClick(
-			{
-				definition: 'Show the site menu.',
-				keys: 's s',
-				selector: '#_com_liferay_product_navigation_product_menu_web_portlet_ProductMenuPortlet_manageSitesLink'
-			}
-		);
+		this.registerURL({
+			custom: false,
+			definition: 'Navigate to home.',
+			keys: 'g h',
+			url: '/'
+		});
 
-		this.registerClick(
-			{
-				definition: 'Toggle the user menu.',
-				keys: 'u m',
-				selector: '.personal-menu-dropdown .btn'
-			}
-		);
+		this.registerClick({
+			definition: 'Show the site menu.',
+			keys: 's s',
+			selector: '#_com_liferay_product_navigation_product_menu_web_portlet_ProductMenuPortlet_manageSitesLink'
+		});
 
-		this.registerClick(
-			{
-				definition: 'Edit the current page.',
-				keys: 'e p',
-				selector: '.user-control-group .control-menu-nav-item:first a'
-			}
-		);
+		this.registerClick({
+			definition: 'Toggle the user menu.',
+			keys: 'u m',
+			selector: '.personal-menu-dropdown .btn'
+		});
 
-		this.registerClick(
-			{
-				definition: 'Configure the current page.',
-				keys: 'c p',
-				selector: '.user-control-group .control-menu-nav-item:nth-child(2) a'
-			}
-		);
+		this.registerClick({
+			definition: 'Edit the current page.',
+			keys: 'e p',
+			selector: '.user-control-group .control-menu-nav-item:first a'
+		});
 
-		this.register(
-			{
-				action: this.showAvailableHotKeys,
-				active: true,
-				definition: 'Show available hot keys.',
-				keys: '?'
-			}
-		);
+		this.registerClick({
+			definition: 'Configure the current page.',
+			keys: 'c p',
+			selector: '.user-control-group .control-menu-nav-item:nth-child(2) a'
+		});
 
-		this.register(
-			{
-				action: this.showAddHotKeyModal,
-				active: themeDisplay.isSignedIn(),
-				definition: 'Add a custom hot key. (Must be logged in.)',
-				keys: 'a k'
-			}
-		);
+		this.register({
+			action: this.showAvailableHotKeys,
+			active: true,
+			definition: 'Show available hot keys.',
+			keys: '?'
+		});
+
+		this.register({
+			action: this.showAddHotKeyModal,
+			active: themeDisplay.isSignedIn(),
+			definition: 'Add a custom hot key. (Must be logged in.)',
+			keys: 'a k'
+		});
 	}
 
 	register(definition) {
@@ -248,8 +222,7 @@ class HotKeys {
 
 		if (definition.custom) {
 			this.customDefinitions.push(definition);
-		}
-		else {
+		} else {
 			this.definitions.push(definition);
 		}
 	}
@@ -267,17 +240,17 @@ class HotKeys {
 	}
 
 	registerCustomDefinition(definition) {
+		var actionTypeMap = this.ACTION_TYPE_MAP;
+
 		var type = definition.type;
 
 		definition.custom = true;
 
-		if (type === ACTION_TYPE_MAP.url) {
+		if (type === actionTypeMap.url) {
 			this.registerURL(definition);
-		}
-		else if (type === ACTION_TYPE_MAP.click) {
+		} else if (type === actionTypeMap.click) {
 			this.registerClick(definition);
-		}
-		else if (type === ACTION_TYPE_MAP.focus) {
+		} else if (type === actionTypeMap.focus) {
 			this.registerFocus(definition);
 		}
 	}
@@ -320,8 +293,8 @@ class HotKeys {
 
 	renderAction(type, value = '') {
 		return `<div class="form-group" id="action">
-			<label for="actionInput">${ACTION_LABEL_MAP[type]}</label>
-			<input class="form-control" id="actionInput" placeholder="${ACTION_PLACEHOLDER_MAP[type]}" type="text" value="${value}">
+			<label for="actionInput">${this.ACTION_LABEL_MAP[type]}</label>
+			<input class="form-control" id="actionInput" placeholder="${this.ACTION_PLACEHOLDER_MAP[type]}" type="text" value="${value}">
 		</div>`;
 	}
 
@@ -349,7 +322,7 @@ class HotKeys {
 			keys = defObj.keys;
 			type = defObj.type;
 
-			action = defObj[ACTION_OBJECT_KEY_MAP[type]];
+			action = defObj[this.ACTION_OBJECT_KEY_MAP[type]];
 		}
 
 		return this.renderModal(
@@ -386,7 +359,7 @@ class HotKeys {
 	}
 
 	renderBadge(content, type = 'success') {
-		return `<span class="badge ${BADGE_TYPE_CLASS_MAP[type]}">
+		return `<span class="badge ${this.BADGE_TYPE_CLASS_MAP[type]}">
 			<span class="badge-item badge-item-expand">${content}</span>
 		</span>`;
 	}
@@ -443,7 +416,7 @@ class HotKeys {
 
 	renderModal(title, body, sizeClass) {
 		return `<div aria-labelledby="clayDefaultModalLabel" class="fade  liferay-hot-keys-root modal" id="hotKeyModal" role="dialog" style="display: none;" tabindex="-1">
-			<div class="modal-dialog ${sizeClass ? MODAL_SIZE_CLASS_MAP[sizeClass] : ''} position-relative">
+			<div class="modal-dialog ${sizeClass ? this.MODAL_SIZE_CLASS_MAP[sizeClass] : ''} position-relative">
 				<div class="modal-content">
 					<div class="modal-header">
 						<div class="modal-title" id="clayDefaultModalLabel">${title}</div>
@@ -475,7 +448,7 @@ class HotKeys {
 		this.addEvent(
 			modal,
 			'shown.bs.modal',
-			function (e) {
+			function(e) {
 				modal.find('#keysInput').first().focus();
 			}
 		);
@@ -513,10 +486,11 @@ class HotKeys {
 					type
 				};
 
-				if (type === ACTION_TYPE_MAP.url) {
+				var actionTypeMap = this.ACTION_TYPE_MAP;
+
+				if (type === actionTypeMap.url) {
 					definition.url = action;
-				}
-				else if (type === ACTION_TYPE_MAP.click || type === ACTION_TYPE_MAP.focus) {
+				} else if (type === actionTypeMap.click || type === actionTypeMap.focus) {
 					definition.selector = action;
 				}
 
@@ -584,8 +558,7 @@ class HotKeys {
 			oldModal.modal('show');
 
 			modal = oldModal;
-		}
-		else {
+		} else {
 			var body = $('body');
 
 			body.append(modal);
@@ -599,7 +572,7 @@ class HotKeys {
 
 AUI().ready(
 	'liferay-store',
- 	function() {
- 		var hotKeys = new HotKeys();
- 	}
- );
+	function() {
+		var hotKeys = new HotKeys();
+	}
+);
