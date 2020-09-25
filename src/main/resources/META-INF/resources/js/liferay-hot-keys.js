@@ -49,6 +49,7 @@ AUI().ready(
 				this.mousetrap = Mousetrap;
 
 				this.deleteCustomDefinition = this.deleteCustomDefinition.bind(this);
+				this.handleAddNewHotKeySubmit = this.handleAddNewHotKeySubmit.bind(this);
 				this.initCustomDefinitions = this.initCustomDefinitions.bind(this);
 				this.init = this.init.bind(this);
 				this.register = this.register.bind(this);
@@ -92,7 +93,39 @@ AUI().ready(
 
 				this.customDefinitions = newCustomDefinitions;
 
-				Liferay.Store(this.CONST_CUSTOM_DEFINITIONS, newCustomDefinitions);
+				Liferay.Store(this.CONST_CUSTOM_DEFINITIONS, JSON.stringify(newCustomDefinitions));
+			}
+
+			handleAddNewHotKeySubmit(e) {
+				var target = e.target;
+
+				var action = target[3].value;
+				var index = target[0].value;
+				var type = target[2].value;
+
+				if (index >= 0) {
+					this.deleteCustomDefinition(index);
+				}
+
+				var definition = {
+					custom: true,
+					definition: target[4].value,
+					keys: target[1].value.trim(),
+					type
+				};
+
+				var actionTypeMap = ACTION_TYPE_MAP;
+
+				if (type === actionTypeMap.url) {
+					definition.url = action;
+				} else if (type === actionTypeMap.click || type === actionTypeMap.focus) {
+					definition.selector = action;
+				}
+				console.log('definition', definition);
+				this.registerCustomDefinition(definition);
+				console.log('this.customDefinitions', this.customDefinitions);
+
+				Liferay.Store(this.CONST_CUSTOM_DEFINITIONS, JSON.stringify([...this.customDefinitions]));
 			}
 
 			initCustomDefinitions() {
@@ -100,7 +133,18 @@ AUI().ready(
 					Liferay.Store.get(
 						this.CONST_CUSTOM_DEFINITIONS,
 						definitions => {
+							try {
+								definitions = JSON.parse(definitions);
+							}
+							catch(e) {
+								console.log('Definitions unable to be parsed', definitions);
+
+								definitions = [];
+							}
+
 							definitions = Array.isArray(definitions) ? definitions : [];
+
+							console.log('initCustomDefinitions', definitions);
 
 							definitions.forEach(
 								definition => {
@@ -304,10 +348,10 @@ AUI().ready(
 			renderActionLinks(i) {
 				return `<td class="text-right">
 					<a class="btn btn-sm edit-definition lfr-portal-tooltip py-1" data-index="${i}" data-title="Edit" href="javascript:;">
-						<span class="icon-edit icon"></span>
+						<span class="icon-edit icon">Edit</span>
 					</a>
 					<a class="btn btn-sm delete-definition lfr-portal-tooltip py-1" data-index="${i}" data-title="Delete" href="javascript:;">
-						<span class="icon-remove icon"></span>
+						<span class="icon-remove icon">Delete</span>
 					</a>
 				</td>`;
 			}
@@ -472,34 +516,9 @@ AUI().ready(
 					e => {
 						e.preventDefault();
 
-						var target = e.target;
+						console.log('e', e);
 
-						var action = target[3].value;
-						var index = target[0].value;
-						var type = target[2].value;
-
-						if (index >= 0) {
-							this.deleteCustomDefinition(index);
-						}
-
-						var definition = {
-							custom: true,
-							definition: target[4].value,
-							keys: target[1].value.trim(),
-							type
-						};
-
-						var actionTypeMap = ACTION_TYPE_MAP;
-
-						if (type === actionTypeMap.url) {
-							definition.url = action;
-						} else if (type === actionTypeMap.click || type === actionTypeMap.focus) {
-							definition.selector = action;
-						}
-
-						this.registerCustomDefinition(definition);
-
-						Liferay.Store(this.CONST_CUSTOM_DEFINITIONS, [...this.customDefinitions]);
+						this.handleAddNewHotKeySubmit(e);
 
 						modal.modal('hide');
 
